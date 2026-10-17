@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Audio Adjuster — per-app volume for macOS</title>
-<meta name="description" content="Audio Adjuster is a free, open-source macOS menu bar app that gives every application its own volume slider, built on Core Audio process taps. Per-app volume control for macOS 14.2 and later.">
+<meta name="description" content="A free, open-source macOS menu bar app that gives every app its own volume slider. Per-app volume control for macOS 14.2+, built on Core Audio process taps.">
 <meta name="google-site-verification" content="j07u6Cb6tYxqLmcuOS92N2Lo7XMwJvGOvt4ot2_LiZM" />
 <link rel="canonical" href="https://clement880101.github.io/audio-adjuster-mac/">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -38,13 +38,69 @@
   "description": "A macOS menu bar app that gives every application its own volume slider, built on Core Audio process taps.",
   "url": "https://clement880101.github.io/audio-adjuster-mac/",
   "downloadUrl": "https://github.com/clement880101/audio-adjuster-mac/releases/latest",
-  "softwareVersion": "0.1.0",
+  "releaseNotes": "https://github.com/clement880101/audio-adjuster-mac/releases/latest",
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "image": "https://clement880101.github.io/audio-adjuster-mac/og.png",
   "author": { "@type": "Person", "name": "Clement Chang" },
   "codeRepository": "https://github.com/clement880101/audio-adjuster-mac"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Audio Adjuster need a kernel extension or a virtual audio driver?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It uses Core Audio process taps, a public API added in macOS 14.2. There is nothing to install alongside it and nothing is patched, which is also why it cannot work on anything earlier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Audio Adjuster ask for microphone permission?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "macOS gates process taps behind the audio-recording permission, and treats a tap as an audio input. The app reads each app's audio in order to play it back at your level and records nothing. Without the grant a tap returns digital silence rather than an error."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does macOS refuse to open Audio Adjuster?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is ad-hoc signed and not notarized, because the project has no Apple Developer ID. Installed with the curl command it opens normally, since files fetched by curl are not quarantined. Downloaded through a browser it is quarantined, so open it the first time with right-click then Open."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Audio Adjuster add latency to audio that is not being adjusted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A tap is created only for an app whose volume you actually change. Everything else keeps its ordinary path, with no tap at all."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does Audio Adjuster cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nothing. It is free and open source under the Apache 2.0 licence, with no account, telemetry or paid tier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do per-app volumes survive a restart?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Levels are keyed to the bundle identifier, so they survive the app quitting, relaunching under a new process, and your Mac restarting."
+      }
+    }
+  ]
 }
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23131517'/><g fill='%23f2a33c'><rect x='8' y='12' width='52' height='20' rx='10'/><rect x='8' y='40' width='70' height='20' rx='10'/><rect x='8' y='68' width='32' height='20' rx='10'/></g></svg>">
@@ -106,6 +162,10 @@ a:hover{background:var(--accent-soft)}
 
 /* ---------- hero ---------- */
 .hero{padding:72px 0 30px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+/* Grid and flex items default to min-width:auto, so a wide child — the install
+   command, a <pre> of a long URL — becomes a floor the column cannot shrink past and
+   the whole page overflows sideways on a phone. */
+.hero>*,.cols>*,.steps>*{min-width:0}
 @media (max-width:900px){.hero{grid-template-columns:1fr;gap:38px;padding-top:48px}}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--accent);display:flex;align-items:center;gap:12px;margin-bottom:22px}
@@ -117,7 +177,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .lede strong{color:var(--text);font-weight:500}
 
 .cmd{display:flex;align-items:center;gap:0;border:1px solid var(--line);background:var(--panel);
-  border-radius:3px;font-family:var(--mono);font-size:13px;overflow:hidden;max-width:520px}
+  border-radius:3px;font-family:var(--mono);font-size:13px;overflow:hidden;max-width:min(520px,100%)}
 .cmd code{padding:13px 15px;overflow-x:auto;white-space:nowrap;flex:1;color:var(--text)}
 .cmd code .sig{color:var(--dimmer)}
 .cmd button{font:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
@@ -186,6 +246,12 @@ td.lab{color:var(--dim)}
 tr.hi td{background:var(--accent-soft)}
 tr.hi td.lab{color:var(--text)}
 
+.faq{display:grid;grid-template-columns:repeat(2,1fr);gap:32px 34px;margin-top:44px}
+@media (max-width:860px){.faq{grid-template-columns:1fr;gap:26px}}
+.faq h3{font-family:var(--sans);font-size:15px;font-weight:500;color:var(--text);
+  margin:0 0 9px;padding-top:14px;border-top:1px solid var(--line)}
+.faq p{margin:0;color:var(--dim);font-size:14.5px}
+
 .note{margin-top:20px;padding-left:16px;border-left:2px solid var(--accent-line);color:var(--dim);font-size:14.5px;max-width:62ch}
 
 /* ---------- install ---------- */
@@ -223,6 +289,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;font-family:var(--mo
       <a href="#install">Install</a>
       <a href="#what">What</a>
       <a href="#how">How</a>
+      <a href="#faq">FAQ</a>
       <a href="https://github.com/clement880101/audio-adjuster-mac">GitHub</a>
     </nav>
   </header>
@@ -369,6 +436,49 @@ make app &amp;&amp; make run</pre>
       and later. Claims about audio here are measured rather than assumed, and the numbers
       are in the <a href="https://github.com/clement880101/audio-adjuster-mac#call-audio">README</a>.
     </p>
+  </section>
+
+
+  <section id="faq">
+    <div class="sec-head">Questions</div>
+    <h2>The things people&nbsp;<em>ask</em>.</h2>
+    <div class="faq">
+      <div>
+        <h3>Does it need a kernel extension or a virtual audio driver?</h3>
+        <p>No. It uses Core Audio process taps, a public API added in macOS&nbsp;14.2.
+        There is nothing to install alongside it and nothing is patched, which is also
+        why it cannot work on anything earlier.</p>
+      </div>
+      <div>
+        <h3>Why does it ask for microphone permission?</h3>
+        <p>macOS gates process taps behind the audio-recording permission, and treats a
+        tap as an audio input. The app reads each app's audio in order to play it back at
+        your level and records nothing. Without the grant a tap returns digital silence
+        rather than an error.</p>
+      </div>
+      <div>
+        <h3>Why does macOS refuse to open it?</h3>
+        <p>It is ad-hoc signed and not notarized, because the project has no Apple
+        Developer ID. Installed with the command above it opens normally, since files
+        fetched by <code>curl</code> are not quarantined. Downloaded through a browser it
+        is, so open it the first time with right-click&nbsp;→&nbsp;Open.</p>
+      </div>
+      <div>
+        <h3>Does it add latency to audio that is not being adjusted?</h3>
+        <p>No. A tap is created only for an app whose volume you actually change.
+        Everything else keeps its ordinary path, with no tap at all.</p>
+      </div>
+      <div>
+        <h3>What does it cost?</h3>
+        <p>Nothing. It is free and open source under the Apache&nbsp;2.0 licence, with no
+        account, telemetry or paid tier.</p>
+      </div>
+      <div>
+        <h3>Do the volumes survive a restart?</h3>
+        <p>Yes. Levels are keyed to the bundle identifier, so they survive the app
+        quitting, relaunching under a new process, and your Mac restarting.</p>
+      </div>
+    </div>
   </section>
 
   <footer>

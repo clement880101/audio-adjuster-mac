@@ -1,0 +1,42 @@
+# Audio Adjuster
+
+> A free, open-source macOS menu bar app that gives every running application its own
+> volume slider. Built on Core Audio process taps; macOS 14.2 or later; Apache 2.0.
+
+macOS has one system volume, so turning a video down takes your music with it. Audio
+Adjuster adds a per-application volume control: a bar in the menu bar for anything
+currently making noise. It is menu bar only — no Dock icon and no window.
+
+## How it works
+
+macOS has no per-app volume API. Since 14.2 it has Core Audio *process taps*, shipped for
+screen recording and system-audio capture. A tap can also mute the process it captures,
+and that is the half that makes a volume control possible.
+
+For each app you actually adjust, the app creates one private process tap, wraps it in a
+private aggregate device built on the current default output, and runs an IO proc that
+copies tapped frames to the output with gain applied. Apps you never touch keep their
+ordinary path, with no tap and no added latency. There is no kernel extension and no
+virtual audio driver.
+
+## Key facts
+
+- Requires macOS 14.2 or later (process taps do not exist before it).
+- Free, open source, Apache 2.0. No account, telemetry or paid tier.
+- Volume range is 0 to 1000%, with 100% at the slider midpoint: linear below so cuts are
+  proportional and reach exact silence, logarithmic above so equal drags are equal
+  multiplications.
+- Levels are keyed to the bundle identifier, so they survive relaunches and restarts.
+- Linked mode holds a constant sum across bars: what one app gains, the others give up.
+  It can be switched off so each bar moves alone. Mute is never linked.
+- It requests audio-recording permission because macOS gates process taps behind it. It
+  reads each app's audio to play it back at your chosen level and records nothing.
+- Builds are ad-hoc signed, not notarized, as the project has no Apple Developer ID.
+
+## Links
+
+- [Landing page](https://clement880101.github.io/audio-adjuster-mac/)
+- [Source and README](https://github.com/clement880101/audio-adjuster-mac)
+- [Latest release](https://github.com/clement880101/audio-adjuster-mac/releases/latest)
+- [Measured audio claims](https://github.com/clement880101/audio-adjuster-mac#call-audio)
+- [License](https://www.apache.org/licenses/LICENSE-2.0)
