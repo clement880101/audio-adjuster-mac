@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/clement880101/audio-adjuster-mac/compare/v0.3.1...v0.3.2) (2026-10-17)
+
+
+### Bug Fixes
+
+* **site:** wrap the masthead nav on a 320px phone ([#6](https://github.com/clement880101/audio-adjuster-mac/issues/6)) ([0dec0fb](https://github.com/clement880101/audio-adjuster-mac/commit/0dec0fb4aee8ed65d82e30acac04ba846496e953))
+* tell release-please where the last release was ([#8](https://github.com/clement880101/audio-adjuster-mac/issues/8)) ([7b4fba6](https://github.com/clement880101/audio-adjuster-mac/commit/7b4fba6a6f97970c777a52c8a301eb4f536f1861))
+
 ## [0.3.1](https://github.com/clement880101/audio-adjuster-mac/compare/audio-adjuster-v0.3.0...audio-adjuster-v0.3.1) (2026-10-17)
 
 
