@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/clement880101/audio-adjuster-mac/compare/audio-adjuster-v0.3.0...audio-adjuster-v0.3.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* hand Core Audio memory it can safely write over ([181e73a](https://github.com/clement880101/audio-adjuster-mac/commit/181e73aca3dd7ca0e495ed67dacd1f397e0b8ffa))
+* hand Core Audio memory it can safely write over ([73240e3](https://github.com/clement880101/audio-adjuster-mac/commit/73240e38651c687c2fb8df17a7e41444d5b2164d))
+* **site:** stop the page overflowing on a phone, and correct its metadata ([fb27ef1](https://github.com/clement880101/audio-adjuster-mac/commit/fb27ef118716fe1057721bea8a47ae4c998fcbb6))
+* **site:** stop the page overflowing on a phone, and correct its metadata ([ed751ba](https://github.com/clement880101/audio-adjuster-mac/commit/ed751babfe57bce8b74c519394d805d044e4388c))
+
 ## [0.3.0](https://github.com/clement880101/audio-adjuster-mac/compare/audio-adjuster-v0.2.2...audio-adjuster-v0.3.0) (2026-09-19)
 
 
