@@ -6,7 +6,10 @@
       "package-name": "audio-adjuster",
       "changelog-path": "CHANGELOG.md",
       "include-v-in-tag": true,
-      "extra-files": ["Resources/Info.plist"]
+      "include-component-in-tag": false,
+      "extra-files": [
+        "Resources/Info.plist"
+      ]
     }
   }
 }
