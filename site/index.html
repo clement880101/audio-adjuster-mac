@@ -159,6 +159,12 @@ a:hover{background:var(--accent-soft)}
 @media (max-width:560px){
   .brand .word{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
+/* Five nav items plus the mark no longer fit across a 320px phone. Let the row wrap
+   rather than run off the edge, and tighten the gaps so it usually does not have to. */
+@media (max-width:420px){
+  .mast{flex-wrap:wrap;row-gap:12px}
+  .mast nav{gap:15px}
+}
 
 /* ---------- hero ---------- */
 .hero{padding:72px 0 30px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
