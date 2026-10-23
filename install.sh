@@ -47,17 +47,43 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 say "Finding the latest release..."
-url=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
+# Fetched once: the asset URL and its published checksum both come out of this.
+release=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest") \
+    || die "could not reach the GitHub releases API"
+url=$(printf '%s' "$release" \
       | grep -o "https://github.com/$REPO/releases/download/[^\"]*/$ASSET" \
       | head -1)
 [ -n "$url" ] || die "no published release yet — build from source instead (see the README)"
+expected=$(printf '%s' "$release" | grep -oE 'SHA-256[^a-f0-9]{1,8}[a-f0-9]{64}' \
+           | grep -oE '[a-f0-9]{64}' | head -1)
 
 say "Downloading $url"
 curl -fsSL "$url" -o "$tmp/$ASSET" || die "download failed"
 
+# The checksum published in the release notes. This is not a signature — notes and asset
+# come from the same place, so it proves nothing about who built them. It does catch a
+# truncated, corrupted or swapped download, which is the failure that actually happens.
+if [ -n "$expected" ]; then
+    actual=$(shasum -a 256 "$tmp/$ASSET" | cut -d' ' -f1)
+    if [ "$expected" != "$actual" ]; then
+        die "checksum mismatch — refusing to install
+  expected $expected
+  got      $actual"
+    fi
+    say "SHA-256 matches the published release."
+else
+    say "note: this release published no checksum, so the download was not verified."
+fi
+
 say "Unpacking..."
 ditto -x -k "$tmp/$ASSET" "$tmp/unpacked" || die "the archive could not be expanded"
 [ -d "$tmp/unpacked/$APP" ] || die "the archive did not contain $APP"
+
+# Verifies the bundle still matches the signature sealed into it at build time, so a
+# bundle altered after signing is refused. The signature is ad-hoc, so this says nothing
+# about who produced it — only that it has not been edited since it was sealed.
+codesign --verify --strict "$tmp/unpacked/$APP" 2>/dev/null \
+    || die "the app failed its own signature check — refusing to install"
 
 # --- install -----------------------------------------------------------------------
 if [ -d "$DEST/$APP" ]; then
