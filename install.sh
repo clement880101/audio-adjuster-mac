@@ -20,11 +20,26 @@ die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 # Core Audio process taps are macOS 14.2+. Without them the app has no mechanism at all.
 os=$(sw_vers -productVersion 2>/dev/null) || die "this installer is for macOS"
 major=${os%%.*}
-rest=${os#*.}
-minor=${rest%%.*}
-[ "$minor" = "$rest" ] && minor=0
+# A bare "15" has no minor part, and ${os#*.} would hand back the whole string. Testing
+# for the dot separates that from "14.2", where the minor genuinely is everything after
+# it — conflating the two rejected every macOS 14.2 through 14.9, the exact range this
+# check exists to admit.
+case "$os" in
+    *.*) rest=${os#*.}; minor=${rest%%.*} ;;
+    *)   minor=0 ;;
+esac
 if [ "$major" -lt 14 ] || { [ "$major" -eq 14 ] && [ "$minor" -lt 2 ]; }; then
     die "macOS 14.2 or later required (found $os)"
+fi
+
+# macOS 15 removed the Control-click override for quarantined software that is not
+# notarized: the decision moved into System Settings. Both paths are still live because
+# this installer supports 14.2 upwards, so pick the one that matches the machine rather
+# than the one that used to be true everywhere.
+if [ "$major" -ge 15 ]; then
+    first_open='try to open it once, then allow it in System Settings > Privacy & Security'
+else
+    first_open='open it the first time with right-click > Open'
 fi
 
 # --- download ----------------------------------------------------------------------
@@ -60,14 +75,14 @@ say "Installed $DEST/$APP"
 # downloaded through a browser is quarantined and macOS will refuse it until you allow it.
 # Check rather than assume, so the advice matches the situation.
 if xattr -p com.apple.quarantine "$DEST/$APP" >/dev/null 2>&1; then
-    cat <<'EXPLAIN'
+    cat <<EXPLAIN
 
 This build is ad-hoc signed, not notarized — the project has no Apple Developer ID,
 so macOS cannot verify who built it, and this copy is quarantined.
 
 Two ways forward:
-  1. Open it the first time with right-click > Open, which lets you read macOS's
-     warning and decide for yourself.
+  1. Leave it quarantined and $first_open,
+     which lets you read macOS's warning and decide for yourself.
   2. Remove the quarantine flag now, which skips that prompt.
 
 Only choose 2 if you trust where this came from.
@@ -80,11 +95,11 @@ EXPLAIN
                 xattr -d -r com.apple.quarantine "$DEST/$APP" 2>/dev/null || true
                 say "Quarantine flag removed."
                 ;;
-            *) say "Left in place. Open it the first time with right-click > Open." ;;
+            *) say "Left in place. To run it, $first_open." ;;
         esac
     else
         # Piped from curl, so there is no terminal to ask at. Never strip it silently.
-        say "Open it the first time with right-click > Open."
+        say "To run it, $first_open."
     fi
 else
     say ""

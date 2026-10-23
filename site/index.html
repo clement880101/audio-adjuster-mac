@@ -74,7 +74,7 @@
       "name": "Why does macOS refuse to open Audio Adjuster?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It is ad-hoc signed and not notarized, because the project has no Apple Developer ID. Installed with the curl command it opens normally, since files fetched by curl are not quarantined. Downloaded through a browser it is quarantined, so open it the first time with right-click then Open."
+        "text": "It is ad-hoc signed and not notarized, because the project has no Apple Developer ID. Installed with the curl command it opens normally, since files fetched by curl are not quarantined. Downloaded through a browser it is quarantined. On macOS 15 and later, open it once and then allow it in System Settings under Privacy and Security \u2014 Control-click then Open no longer overrides Gatekeeper. On macOS 14, open it the first time with right-click then Open."
       }
     },
     {
@@ -361,9 +361,11 @@ make app &amp;&amp; make run</pre>
           <b>Ad-hoc signed, not notarized.</b> There is no Apple Developer ID behind this,
           so macOS cannot verify who built it. Installed with the command on the left it
           opens normally — files fetched by <code>curl</code> are not quarantined.
-          Downloaded through a browser it is, and macOS will refuse a double-click: open it
-          the first time with right-click&nbsp;→&nbsp;Open. Building from source sidesteps
-          the question.
+          Downloaded through a browser it is, and macOS will refuse a double-click. On
+          macOS&nbsp;15 and later, open it once and then allow it in
+          System&nbsp;Settings&nbsp;→&nbsp;Privacy&nbsp;&amp;&nbsp;Security; Control-click
+          →&nbsp;Open no longer overrides Gatekeeper there. On macOS&nbsp;14, use
+          right-click&nbsp;→&nbsp;Open. Building from source sidesteps the question.
         </p>
       </div>
     </div>
@@ -468,7 +470,10 @@ make app &amp;&amp; make run</pre>
         <p>It is ad-hoc signed and not notarized, because the project has no Apple
         Developer ID. Installed with the command above it opens normally, since files
         fetched by <code>curl</code> are not quarantined. Downloaded through a browser it
-        is, so open it the first time with right-click&nbsp;→&nbsp;Open.</p>
+        is. On macOS&nbsp;15 and later, open it once and then allow it in
+        System&nbsp;Settings&nbsp;→&nbsp;Privacy&nbsp;&amp;&nbsp;Security — Control-click
+        →&nbsp;Open no longer overrides Gatekeeper. On macOS&nbsp;14, open it the first
+        time with right-click&nbsp;→&nbsp;Open.</p>
       </div>
       <div>
         <h3>Does it add latency to audio that is not being adjusted?</h3>
