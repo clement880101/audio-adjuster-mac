@@ -30,8 +30,9 @@ macOS cannot verify who built it. What that means depends on how you got it:
 - **Installed with the script above:** it opens normally. Files fetched by `curl` carry no
   quarantine attribute, so Gatekeeper does not intervene.
 - **Downloaded through a browser:** the zip is quarantined and macOS will refuse to open
-  the app by double-click. Open it the first time with **right-click → Open**, which lets
-  you read the warning and decide for yourself.
+  the app by double-click. On **macOS 15 and later**, open it once, then allow it in
+  **System Settings → Privacy & Security**; Control-click → Open no longer overrides
+  Gatekeeper there. On **macOS 14**, open it the first time with **right-click → Open**.
 
 Building from source sidesteps the question entirely.
 
